@@ -1,447 +1,603 @@
-```html id="j1a9ko"
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+  />
 
   <title>
     Sistema de Ocorrências Acadêmicas — versão segura
   </title>
 
-  <link rel="stylesheet" href="style.css" />
+  <link
+          rel="stylesheet"
+          href="style.css"
+  />
 </head>
 
 <body>
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Segurança da Informação</p>
 
-      <h1>
-        Sistema de Ocorrências Acadêmicas
-      </h1>
+<header class="topbar">
 
-      <p class="subtitle">
-        Protótipo didático em HTML, CSS e JavaScript
-      </p>
-    </div>
+  <div>
+    <p class="eyebrow">
+      Segurança da Informação
+    </p>
 
-    <div class="topbar-actions">
-      <span id="sessionBadge" class="badge muted">
+    <h1>
+      Sistema de Ocorrências Acadêmicas
+    </h1>
+
+    <p class="subtitle">
+      Protótipo didático em HTML, CSS e JavaScript
+    </p>
+  </div>
+
+  <div class="topbar-actions">
+
+      <span
+              id="sessionBadge"
+              class="badge muted"
+      >
         Sessão não iniciada
       </span>
 
-      <button
-        id="logoutBtn"
-        class="btn secondary hidden"
-      >
-        Sair
-      </button>
+    <button
+            id="logoutBtn"
+            class="btn secondary hidden"
+    >
+      Sair
+    </button>
+
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- LOGIN -->
+  <section
+          id="loginView"
+          class="card login-card"
+  >
+
+    <div>
+
+      <p class="eyebrow">
+        Acesso
+      </p>
+
+      <h2>
+        Entrar no sistema
+      </h2>
+
+      <p class="muted-text">
+        Utilize um dos usuários de demonstração
+        para acessar o sistema.
+      </p>
+
     </div>
-  </header>
 
-  <main class="layout">
+    <form
+            id="loginForm"
+            class="form-grid"
+    >
 
-    <!-- LOGIN -->
-    <section id="loginView" class="card login-card">
+      <label>
+        E-mail
 
-      <div>
-        <p class="eyebrow">Acesso</p>
+        <input
+                id="email"
+                type="email"
+                value="professor@faculdade.local"
+                autocomplete="email"
+                required
+        />
+      </label>
 
-        <h2>Entrar no sistema</h2>
+      <label>
+        Senha
 
-        <p class="muted-text">
-          Use um dos usuários de demonstração
-          para acessar o painel.
+        <input
+                id="password"
+                type="password"
+                autocomplete="current-password"
+                required
+        />
+      </label>
+
+      <button
+              class="btn primary"
+              type="submit"
+      >
+        Entrar
+      </button>
+
+    </form>
+
+    <div class="demo-users">
+
+      <h3>
+        Usuários de demonstração
+      </h3>
+
+      <ul>
+        <li>
+          <strong>
+            aluno@faculdade.local
+          </strong>
+          — senha: 123456
+        </li>
+
+        <li>
+          <strong>
+            professor@faculdade.local
+          </strong>
+          — senha: 123456
+        </li>
+
+        <li>
+          <strong>
+            admin@faculdade.local
+          </strong>
+          — senha: admin
+        </li>
+      </ul>
+
+    </div>
+
+  </section>
+
+  <!-- APP -->
+  <section
+          id="appView"
+          class="hidden"
+  >
+
+    <!-- USUÁRIO -->
+    <section class="grid two">
+
+      <article class="card">
+
+        <p class="eyebrow">
+          Usuário atual
         </p>
-      </div>
 
-      <form id="loginForm" class="form-grid">
+        <h2 id="currentUserName">
+          ?
+        </h2>
 
-        <label>
-          E-mail
-
-          <input
-            id="email"
-            type="email"
-            value="professor@faculdade.local"
-            autocomplete="email"
-            required
-          />
-        </label>
-
-        <label>
-          Senha
-
-          <input
-            id="password"
-            type="password"
-            autocomplete="current-password"
-            required
-          />
-        </label>
-
-        <button
-          class="btn primary"
-          type="submit"
+        <p
+                id="currentUserDetails"
+                class="muted-text"
         >
-          Entrar
-        </button>
-      </form>
+          ?
+        </p>
 
-      <div class="demo-users">
-        <h3>Usuários de demonstração</h3>
+        <div class="notice">
+          O perfil do usuário define automaticamente
+          quais recursos e registros podem ser acessados.
+        </div>
 
-        <ul>
-          <li>
-            <strong>aluno@faculdade.local</strong>
-          </li>
+      </article>
 
-          <li>
-            <strong>professor@faculdade.local</strong>
-          </li>
+      <!-- AÇÕES -->
+      <article class="card">
 
-          <li>
-            <strong>admin@faculdade.local</strong>
-          </li>
-        </ul>
-      </div>
+        <p class="eyebrow">
+          Ações rápidas
+        </p>
+
+        <h2>
+          Ferramentas do painel
+        </h2>
+
+        <div class="actions">
+
+          <button
+                  id="exportBtn"
+                  class="btn secondary"
+                  type="button"
+          >
+            Exportar dados
+          </button>
+
+          <button
+                  id="clearLogsBtn"
+                  class="btn secondary"
+                  type="button"
+                  hidden
+          >
+            Solicitar limpeza de logs
+          </button>
+
+          <button
+                  id="resetBtn"
+                  class="btn danger"
+                  type="button"
+          >
+            Restaurar dados iniciais
+          </button>
+
+        </div>
+
+        <div class="notice">
+          Algumas funcionalidades são restritas
+          apenas ao perfil administrador.
+        </div>
+
+      </article>
+
     </section>
 
-    <!-- APP -->
-    <section id="appView" class="hidden">
+    <!-- FORMULÁRIO -->
+    <section class="grid two">
 
-      <!-- USUÁRIO -->
-      <section class="grid two">
+      <article
+              id="occurrenceFormSection"
+              class="card"
+      >
 
-        <article class="card">
-          <p class="eyebrow">Usuário atual</p>
+        <p class="eyebrow">
+          Nova ocorrência
+        </p>
 
-          <h2 id="currentUserName">—</h2>
+        <h2>
+          Registrar ocorrência acadêmica
+        </h2>
 
-          <p
-            id="currentUserDetails"
-            class="muted-text"
-          >
-            —
-          </p>
+        <div class="notice">
+          Apenas professores e administradores
+          podem cadastrar ocorrências.
+        </div>
 
-          <div class="notice">
-            O perfil é definido durante o login
-            e não pode ser alterado manualmente.
-          </div>
-        </article>
-
-        <!-- AÇÕES -->
-        <article class="card">
-          <p class="eyebrow">Ações rápidas</p>
-
-          <h2>Ferramentas do painel</h2>
-
-          <div class="actions">
-
-            <button
-              id="exportBtn"
-              class="btn secondary"
-              type="button"
-            >
-              Exportar dados
-            </button>
-
-            <button
-              id="clearLogsBtn"
-              class="btn secondary"
-              type="button"
-            >
-              Solicitar limpeza de logs
-            </button>
-
-            <button
-              id="resetBtn"
-              class="btn danger"
-              type="button"
-            >
-              Restaurar dados iniciais
-            </button>
-
-          </div>
-
-          <div class="notice">
-            Algumas ações estão disponíveis
-            apenas para administradores.
-          </div>
-        </article>
-      </section>
-
-      <!-- FORMULÁRIO -->
-      <section class="grid two">
-
-        <article class="card">
-
-          <p class="eyebrow">
-            Nova ocorrência
-          </p>
-
-          <h2>
-            Registrar ocorrência acadêmica
-          </h2>
-
-          <form
-            id="occurrenceForm"
-            class="form-grid"
-          >
-
-            <label>
-              Nome do aluno
-
-              <input
-                id="studentName"
-                type="text"
-                placeholder="Ex.: João da Silva"
-                required
-              />
-            </label>
-
-            <label>
-              Matrícula
-
-              <input
-                id="studentId"
-                type="text"
-                placeholder="Ex.: 202400123"
-                required
-              />
-            </label>
-
-            <label>
-              CPF
-
-              <input
-                id="studentCpf"
-                type="text"
-                placeholder="Ex.: 000.000.000-00"
-                required
-              />
-            </label>
-
-            <label>
-              E-mail pessoal
-
-              <input
-                id="studentEmail"
-                type="email"
-                placeholder="aluno@email.com"
-                required
-              />
-            </label>
-
-            <label>
-              Telefone
-
-              <input
-                id="studentPhone"
-                type="text"
-                placeholder="(00) 00000-0000"
-                required
-              />
-            </label>
-
-            <label>
-              Tipo de ocorrência
-
-              <select id="category">
-                <option>Nota</option>
-                <option>Frequência</option>
-                <option>Comportamento</option>
-                <option>Solicitação administrativa</option>
-                <option>Outro</option>
-              </select>
-            </label>
-
-            <label>
-              Prioridade
-
-              <select id="priority">
-                <option>Baixa</option>
-                <option>Média</option>
-                <option>Alta</option>
-                <option>Crítica</option>
-              </select>
-            </label>
-
-            <label class="span-2">
-              Descrição da ocorrência
-
-              <textarea
-                id="description"
-                rows="5"
-                placeholder="Descreva o ocorrido..."
-                required
-              ></textarea>
-            </label>
-
-            <label class="span-2">
-              Observação interna
-
-              <textarea
-                id="internalNote"
-                rows="3"
-                placeholder="Informação visível apenas para administradores."
-              ></textarea>
-            </label>
-
-            <label class="check span-2">
-
-              <input
-                id="privacyAck"
-                type="checkbox"
-                required
-              />
-
-              Confirmo que possuo autorização
-              para registrar estes dados.
-            </label>
-
-            <button
-              class="btn primary span-2"
-              type="submit"
-            >
-              Salvar ocorrência
-            </button>
-
-          </form>
-        </article>
-
-        <!-- BUSCA -->
-        <article class="card">
-
-          <p class="eyebrow">Busca</p>
-
-          <h2>
-            Pesquisar registros
-          </h2>
+        <form
+                id="occurrenceForm"
+                class="form-grid"
+        >
 
           <label>
-            Termo de busca
+            Nome do aluno
 
             <input
-              id="search"
-              type="search"
-              placeholder="Nome, matrícula, CPF, e-mail ou texto..."
+                    id="studentName"
+                    type="text"
+                    placeholder="Ex.: João da Silva"
+                    required
             />
           </label>
 
-          <div class="summary">
+          <label>
+            Matrícula
 
-            <div>
-              <strong id="totalOccurrences">
-                0
-              </strong>
+            <input
+                    id="studentId"
+                    type="text"
+                    placeholder="Ex.: 202400123"
+                    required
+            />
+          </label>
 
-              <span>ocorrências</span>
-            </div>
+          <label>
+            CPF
 
-            <div>
-              <strong id="criticalOccurrences">
-                0
-              </strong>
+            <input
+                    id="studentCpf"
+                    type="text"
+                    placeholder="Ex.: 000.000.000-00"
+                    required
+            />
+          </label>
 
-              <span>críticas</span>
-            </div>
+          <label>
+            E-mail institucional
 
-          </div>
+            <input
+                    id="studentEmail"
+                    type="email"
+                    placeholder="aluno@faculdade.local"
+                    required
+            />
+          </label>
 
-          <div class="notice">
-            A busca exibe apenas registros
-            permitidos para o perfil autenticado.
-          </div>
-        </article>
-      </section>
+          <label>
+            Telefone
 
-      <!-- TABELA -->
-      <section class="card">
+            <input
+                    id="studentPhone"
+                    type="text"
+                    placeholder="(00) 00000-0000"
+                    required
+            />
+          </label>
 
-        <div class="section-header">
+          <label>
+            Tipo de ocorrência
 
-          <div>
-            <p class="eyebrow">
-              Registros
-            </p>
+            <select id="category">
+              <option>
+                Nota
+              </option>
 
-            <h2>
-              Ocorrências cadastradas
-            </h2>
-          </div>
+              <option>
+                Frequência
+              </option>
 
-          <span
-            id="lastUpdate"
-            class="badge"
+              <option>
+                Comportamento
+              </option>
+
+              <option>
+                Solicitação administrativa
+              </option>
+
+              <option>
+                Outro
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Prioridade
+
+            <select id="priority">
+              <option>
+                Baixa
+              </option>
+
+              <option>
+                Média
+              </option>
+
+              <option>
+                Alta
+              </option>
+
+              <option>
+                Crítica
+              </option>
+            </select>
+          </label>
+
+          <label class="span-2">
+            Descrição da ocorrência
+
+            <textarea
+                    id="description"
+                    rows="5"
+                    placeholder="Descreva o ocorrido..."
+                    required
+            ></textarea>
+          </label>
+
+          <label class="span-2">
+            Observação interna
+
+            <textarea
+                    id="internalNote"
+                    rows="3"
+                    placeholder="Visível apenas para administradores."
+            ></textarea>
+          </label>
+
+          <label class="check span-2">
+
+            <input
+                    id="privacyAck"
+                    type="checkbox"
+                    required
+            />
+
+            Confirmo que possuo autorização
+            para registrar estes dados.
+
+          </label>
+
+          <button
+                  class="btn primary span-2"
+                  type="submit"
           >
-            —
-          </span>
-        </div>
+            Salvar ocorrência
+          </button>
 
-        <div class="table-wrap">
+        </form>
 
-          <table>
+      </article>
 
-            <thead>
-              <tr>
-                <th>Aluno</th>
-                <th>Documento</th>
-                <th>Contato</th>
-                <th>Tipo</th>
-                <th>Prioridade</th>
-                <th>Status</th>
-                <th>Descrição</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
+      <!-- BUSCA -->
+      <article class="card">
 
-            <tbody id="occurrencesTable"></tbody>
+        <p class="eyebrow">
+          Busca
+        </p>
 
-          </table>
-        </div>
-      </section>
+        <h2>
+          Pesquisar registros
+        </h2>
 
-      <!-- LOGS -->
-      <section class="card">
+        <label>
+          Termo de busca
 
-        <div class="section-header">
+          <input
+                  id="search"
+                  type="search"
+                  placeholder="Pesquisar ocorrência..."
+          />
+        </label>
+
+        <div class="summary">
 
           <div>
-            <p class="eyebrow">
-              Auditoria
-            </p>
 
-            <h2>
-              Logs do sistema
-            </h2>
+            <strong id="totalOccurrences">
+              0
+            </strong>
+
+            <span>
+                ocorrências
+              </span>
+
           </div>
 
-          <span class="badge muted">
-            armazenamento local
-          </span>
+          <div>
+
+            <strong id="criticalOccurrences">
+              0
+            </strong>
+
+            <span>
+                críticas
+              </span>
+
+          </div>
+
         </div>
 
-        <div
-          id="auditLog"
-          class="log-list"
-        ></div>
+        <div class="notice">
+          O sistema aplica restrições automáticas
+          de visualização conforme o perfil autenticado.
+        </div>
 
-      </section>
+      </article>
 
     </section>
-  </main>
 
-  <footer class="footer">
-    <p>
-      Protótipo estático para atividade prática.
-      Publicável em GitHub Pages.
-    </p>
-  </footer>
+    <!-- TABELA -->
+    <section class="card">
 
-  <script src="app.js"></script>
+      <div class="section-header">
+
+        <div>
+
+          <p class="eyebrow">
+            Registros
+          </p>
+
+          <h2>
+            Ocorrências cadastradas
+          </h2>
+
+        </div>
+
+        <span
+                id="lastUpdate"
+                class="badge"
+        >
+            ?
+          </span>
+
+      </div>
+
+      <div class="notice">
+        Dados sensíveis são reduzidos ou mascarados
+        conforme o nível de acesso do usuário.
+      </div>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+          <tr>
+            <th>
+              Aluno
+            </th>
+
+            <th>
+              Documento
+            </th>
+
+            <th>
+              Contato
+            </th>
+
+            <th>
+              Tipo
+            </th>
+
+            <th>
+              Prioridade
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Detalhes
+            </th>
+
+            <th>
+              Ações
+            </th>
+          </tr>
+
+          </thead>
+
+          <tbody id="occurrencesTable"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- LOGS -->
+    <section
+            id="auditSection"
+            class="card"
+            hidden
+    >
+
+      <div class="section-header">
+
+        <div>
+
+          <p class="eyebrow">
+            Auditoria
+          </p>
+
+          <h2>
+            Logs do sistema
+          </h2>
+
+        </div>
+
+        <span class="badge muted">
+            armazenamento local
+          </span>
+
+      </div>
+
+      <div class="notice">
+        Apenas administradores podem acessar
+        os registros completos de auditoria.
+      </div>
+
+      <div
+              id="auditLog"
+              class="log-list"
+      ></div>
+
+    </section>
+
+  </section>
+
+</main>
+
+<footer class="footer">
+
+  <p>
+    Protótipo estático para atividade prática.
+    Publicável em GitHub Pages.
+  </p>
+
+</footer>
+
+<script src="app.js"></script>
+
 </body>
 </html>
-```

@@ -1,4 +1,3 @@
-```javascript
 const USERS = [
   {
     id: 1,
@@ -43,7 +42,7 @@ const INITIAL_OCCURRENCES = [
     studentName: "Marina Alves",
     studentId: "202300145",
     studentCpf: "123.456.789-10",
-    studentEmail: "marina.alves@email.local",
+    studentEmail: "marinaalves@faculdade.local",
     studentPhone: "(47) 99999-1010",
     category: "Nota",
     priority: "Média",
@@ -51,6 +50,8 @@ const INITIAL_OCCURRENCES = [
     internalNote: "Verificar com a coordenação antes de responder.",
     status: "Aberta",
     createdBy: "professor@faculdade.local",
+    createdByRole: "PROFESSOR",
+    ownerEmail: "aluno@faculdade.local",
     createdAt: "2026-05-05T18:40:00.000Z"
   },
   {
@@ -58,7 +59,7 @@ const INITIAL_OCCURRENCES = [
     studentName: "Rafael Martins",
     studentId: "202200771",
     studentCpf: "987.654.321-00",
-    studentEmail: "rafael.martins@email.local",
+    studentEmail: "professor@faculdade.local",
     studentPhone: "(47) 98888-2020",
     category: "Frequência",
     priority: "Alta",
@@ -66,6 +67,8 @@ const INITIAL_OCCURRENCES = [
     internalNote: "Conferir chamada manual.",
     status: "Em análise",
     createdBy: "professor@faculdade.local",
+    createdByRole: "PROFESSOR",
+    ownerEmail: "professor@faculdade.local",
     createdAt: "2026-05-05T18:50:00.000Z"
   },
   {
@@ -73,7 +76,7 @@ const INITIAL_OCCURRENCES = [
     studentName: "Beatriz Costa",
     studentId: "202100441",
     studentCpf: "111.222.333-44",
-    studentEmail: "beatriz.costa@email.local",
+    studentEmail: "admin@faculdade.local",
     studentPhone: "(47) 97777-3030",
     category: "Solicitação administrativa",
     priority: "Crítica",
@@ -81,42 +84,126 @@ const INITIAL_OCCURRENCES = [
     internalNote: "Priorizar atendimento.",
     status: "Aberta",
     createdBy: "admin@faculdade.local",
+    createdByRole: "ADMIN",
+    ownerEmail: "admin@faculdade.local",
     createdAt: "2026-05-05T19:00:00.000Z"
   }
 ];
 
-const loginView = document.querySelector("#loginView");
-const appView = document.querySelector("#appView");
-const loginForm = document.querySelector("#loginForm");
-const occurrenceForm = document.querySelector("#occurrenceForm");
-const logoutBtn = document.querySelector("#logoutBtn");
-const exportBtn = document.querySelector("#exportBtn");
-const clearLogsBtn = document.querySelector("#clearLogsBtn");
-const resetBtn = document.querySelector("#resetBtn");
-const searchInput = document.querySelector("#search");
+const auditSection =
+    document.querySelector("#auditSection");
 
-const sessionBadge = document.querySelector("#sessionBadge");
-const currentUserName = document.querySelector("#currentUserName");
-const currentUserDetails = document.querySelector("#currentUserDetails");
-const occurrencesTable = document.querySelector("#occurrencesTable");
-const auditLog = document.querySelector("#auditLog");
-const totalOccurrences = document.querySelector("#totalOccurrences");
-const criticalOccurrences = document.querySelector("#criticalOccurrences");
-const lastUpdate = document.querySelector("#lastUpdate");
+const clearLogsButton =
+    document.querySelector("#clearLogsBtn");
+
+const loginView =
+    document.querySelector("#loginView");
+
+const appView =
+    document.querySelector("#appView");
+
+const loginForm =
+    document.querySelector("#loginForm");
+
+const occurrenceForm =
+    document.querySelector("#occurrenceForm");
+
+const logoutBtn =
+    document.querySelector("#logoutBtn");
+
+const exportBtn =
+    document.querySelector("#exportBtn");
+
+const clearLogsBtn =
+    document.querySelector("#clearLogsBtn");
+
+const resetBtn =
+    document.querySelector("#resetBtn");
+
+const searchInput =
+    document.querySelector("#search");
+
+const sessionBadge =
+    document.querySelector("#sessionBadge");
+
+const currentUserName =
+    document.querySelector("#currentUserName");
+
+const currentUserDetails =
+    document.querySelector("#currentUserDetails");
+
+const occurrencesTable =
+    document.querySelector("#occurrencesTable");
+
+const auditLog =
+    document.querySelector("#auditLog");
+
+const totalOccurrences =
+    document.querySelector("#totalOccurrences");
+
+const criticalOccurrences =
+    document.querySelector("#criticalOccurrences");
+
+const lastUpdate =
+    document.querySelector("#lastUpdate");
+
+const occurrenceFormSection =
+    document.querySelector("#occurrenceFormSection");
+
+function showElement(element) {
+  if (!element) {
+    return;
+  }
+
+  element.hidden = false;
+}
+
+function hideElement(element) {
+  if (!element) {
+    return;
+  }
+
+  element.hidden = true;
+}
 
 function isAdmin() {
   const session = getSession();
+
   return session?.role === ROLES.ADMIN;
 }
 
 function isProfessor() {
   const session = getSession();
+
   return session?.role === ROLES.PROFESSOR;
 }
 
 function isAluno() {
   const session = getSession();
+
   return session?.role === ROLES.ALUNO;
+}
+
+function canCreateOccurrence() {
+  return isProfessor() || isAdmin();
+}
+
+function applyPermissions() {
+  if (canCreateOccurrence()) {
+    showElement(occurrenceFormSection);
+  } else {
+    hideElement(occurrenceFormSection);
+  }
+
+  if (isAdmin()) {
+    showElement(auditSection);
+    showElement(clearLogsButton);
+
+    return;
+  }
+
+  hideElement(auditSection);
+  hideElement(clearLogsButton);
 }
 
 function requireSession() {
@@ -124,32 +211,115 @@ function requireSession() {
 
   if (!session) {
     alert("Sessão inválida.");
+
     logout();
+
     return false;
   }
 
   return true;
 }
 
+function sanitize(text) {
+  const div = document.createElement("div");
+
+  div.innerText = text || "";
+
+  return div.innerHTML;
+}
+
+function maskCpf(cpf) {
+  if (!cpf) {
+    return "-";
+  }
+
+  return "***.***.***-**";
+}
+
+function maskPhone(phone) {
+  if (!phone) {
+    return "-";
+  }
+
+  return "(**) *****-****";
+}
+
+function formatOccurrenceDetails(item) {
+  if (isAdmin()) {
+    return `
+      <strong>Descrição:</strong>
+      ${sanitize(item.description)}<br /><br />
+
+      <strong>Observação interna:</strong>
+      ${sanitize(item.internalNote || "-")}<br /><br />
+
+      <strong>Criado por:</strong>
+      ${sanitize(item.createdBy)}<br />
+
+      <strong>Perfil:</strong>
+      ${sanitize(item.createdByRole)}
+    `;
+  }
+
+  if (isProfessor()) {
+    return `
+      <strong>Descrição:</strong>
+      ${sanitize(item.description)}<br /><br />
+
+      <strong>Status:</strong>
+      ${sanitize(item.status)}
+    `;
+  }
+
+  return `
+    <strong>Descrição:</strong>
+    ${sanitize(item.description)}
+  `;
+}
+
+function getVisibleOccurrences() {
+  const occurrences = getOccurrences();
+
+  const session = getSession();
+
+  if (isAdmin()) {
+    return occurrences;
+  }
+
+  if (isProfessor()) {
+    return occurrences.filter(
+        (item) => item.createdBy === session.email
+    );
+  }
+
+  if (isAluno()) {
+    return occurrences.filter(
+        (item) => item.ownerEmail === session.email
+    );
+  }
+
+  return [];
+}
+
 function boot() {
   if (!localStorage.getItem(STORAGE_KEYS.occurrences)) {
     localStorage.setItem(
-      STORAGE_KEYS.occurrences,
-      JSON.stringify(INITIAL_OCCURRENCES)
+        STORAGE_KEYS.occurrences,
+        JSON.stringify(INITIAL_OCCURRENCES)
     );
   }
 
   if (!localStorage.getItem(STORAGE_KEYS.audit)) {
     localStorage.setItem(
-      STORAGE_KEYS.audit,
-      JSON.stringify([
-        {
-          when: new Date().toISOString(),
-          user: "sistema",
-          action: "BASE_INICIAL_CRIADA",
-          detail: "Dados fictícios carregados no localStorage."
-        }
-      ])
+        STORAGE_KEYS.audit,
+        JSON.stringify([
+          {
+            when: new Date().toISOString(),
+            user: "sistema",
+            action: "BASE_INICIAL_CRIADA",
+            detail: "Dados fictícios carregados no localStorage."
+          }
+        ])
     );
   }
 
@@ -164,45 +334,46 @@ function boot() {
 
 function getOccurrences() {
   return JSON.parse(
-    localStorage.getItem(STORAGE_KEYS.occurrences) || "[]"
+      localStorage.getItem(STORAGE_KEYS.occurrences) || "[]"
   );
 }
 
 function saveOccurrences(occurrences) {
   localStorage.setItem(
-    STORAGE_KEYS.occurrences,
-    JSON.stringify(occurrences)
+      STORAGE_KEYS.occurrences,
+      JSON.stringify(occurrences)
   );
 }
 
 function getAuditLogs() {
   return JSON.parse(
-    localStorage.getItem(STORAGE_KEYS.audit) || "[]"
+      localStorage.getItem(STORAGE_KEYS.audit) || "[]"
   );
 }
 
 function saveAuditLogs(logs) {
   localStorage.setItem(
-    STORAGE_KEYS.audit,
-    JSON.stringify(logs)
+      STORAGE_KEYS.audit,
+      JSON.stringify(logs)
   );
 }
 
 function getSession() {
   return JSON.parse(
-    localStorage.getItem(STORAGE_KEYS.session) || "null"
+      localStorage.getItem(STORAGE_KEYS.session) || "null"
   );
 }
 
 function saveSession(user) {
   localStorage.setItem(
-    STORAGE_KEYS.session,
-    JSON.stringify(user)
+      STORAGE_KEYS.session,
+      JSON.stringify(user)
   );
 }
 
 function writeLog(action, detail) {
   const session = getSession();
+
   const logs = getAuditLogs();
 
   logs.unshift({
@@ -221,7 +392,9 @@ function showLogin() {
   appView.classList.add("hidden");
   logoutBtn.classList.add("hidden");
 
-  sessionBadge.textContent = "Sessão não iniciada";
+  sessionBadge.textContent =
+      "Sessão não iniciada";
+
   sessionBadge.classList.add("muted");
 }
 
@@ -230,29 +403,34 @@ function showApp(user) {
   appView.classList.remove("hidden");
   logoutBtn.classList.remove("hidden");
 
-  sessionBadge.textContent = `${user.name} — ${user.role}`;
+  sessionBadge.textContent =
+      `${user.name} • ${user.role}`;
+
   sessionBadge.classList.remove("muted");
 
   currentUserName.textContent = user.name;
+
   currentUserDetails.textContent =
-    `${user.email} | Perfil: ${user.role}`;
+      `${user.email} | Perfil: ${user.role}`;
+
+  applyPermissions();
 
   render();
 }
 
 function login(email, password) {
   const user = USERS.find(
-    (item) =>
-      item.email === email &&
-      item.password === password
+      (item) =>
+          item.email === email &&
+          item.password === password
   );
 
   if (!user) {
     alert("Usuário ou senha inválidos.");
 
     writeLog(
-      "LOGIN_FALHOU",
-      `Tentativa para ${email}`
+        "LOGIN_FALHOU",
+        `Tentativa para ${email}`
     );
 
     return;
@@ -261,8 +439,8 @@ function login(email, password) {
   saveSession(user);
 
   writeLog(
-    "LOGIN_OK",
-    `Usuário ${user.email} entrou no sistema.`
+      "LOGIN_OK",
+      `Usuário ${user.email} entrou no sistema.`
   );
 
   showApp(user);
@@ -272,10 +450,10 @@ function logout() {
   const session = getSession();
 
   writeLog(
-    "LOGOUT",
-    session
-      ? `${session.email} saiu do sistema.`
-      : "Sessão encerrada."
+      "LOGOUT",
+      session
+          ? `${session.email} saiu do sistema.`
+          : "Sessão encerrada."
   );
 
   localStorage.removeItem(STORAGE_KEYS.session);
@@ -290,30 +468,67 @@ function createOccurrence(event) {
     return;
   }
 
+  if (!canCreateOccurrence()) {
+    alert(
+        "Seu perfil não possui permissão para cadastrar ocorrências."
+    );
+
+    writeLog(
+        "CRIACAO_NEGADA",
+        "Usuário tentou criar ocorrência sem permissão."
+    );
+
+    return;
+  }
+
   const privacyAccepted =
-    document.querySelector("#privacyAck").checked;
+      document.querySelector("#privacyAck").checked;
 
   if (!privacyAccepted) {
-    alert("É necessário confirmar autorização dos dados.");
+    alert(
+        "É necessário confirmar autorização dos dados."
+    );
+
     return;
   }
 
   const session = getSession();
 
+  const studentEmail =
+      document.querySelector("#studentEmail").value;
+
   const occurrence = {
     id: `OC-${Math.floor(Math.random() * 9000) + 1000}`,
-    studentName: document.querySelector("#studentName").value,
-    studentId: document.querySelector("#studentId").value,
-    studentCpf: document.querySelector("#studentCpf").value,
-    studentEmail: document.querySelector("#studentEmail").value,
-    studentPhone: document.querySelector("#studentPhone").value,
-    category: document.querySelector("#category").value,
-    priority: document.querySelector("#priority").value,
-    description: document.querySelector("#description").value,
-    internalNote: document.querySelector("#internalNote").value,
+    studentName: sanitize(
+        document.querySelector("#studentName").value
+    ),
+    studentId: sanitize(
+        document.querySelector("#studentId").value
+    ),
+    studentCpf: sanitize(
+        document.querySelector("#studentCpf").value
+    ),
+    studentEmail: sanitize(studentEmail),
+    studentPhone: sanitize(
+        document.querySelector("#studentPhone").value
+    ),
+    category: sanitize(
+        document.querySelector("#category").value
+    ),
+    priority: sanitize(
+        document.querySelector("#priority").value
+    ),
+    description: sanitize(
+        document.querySelector("#description").value
+    ),
+    internalNote: sanitize(
+        document.querySelector("#internalNote").value
+    ),
     privacyAck: privacyAccepted,
     status: "Aberta",
     createdBy: session.email,
+    createdByRole: session.role,
+    ownerEmail: studentEmail,
     createdAt: new Date().toISOString()
   };
 
@@ -324,8 +539,8 @@ function createOccurrence(event) {
   saveOccurrences(occurrences);
 
   writeLog(
-    "OCORRENCIA_CRIADA",
-    `Criada ocorrência ${occurrence.id}`
+      "OCORRENCIA_CRIADA",
+      `Criada ocorrência ${occurrence.id}`
   );
 
   occurrenceForm.reset();
@@ -339,11 +554,13 @@ function deleteOccurrence(id) {
   }
 
   if (!isAdmin()) {
-    alert("Apenas administradores podem excluir ocorrências.");
+    alert(
+        "Apenas administradores podem excluir ocorrências."
+    );
 
     writeLog(
-      "EXCLUSAO_NEGADA",
-      `Usuário tentou excluir ocorrência ${id}`
+        "EXCLUSAO_NEGADA",
+        `Tentativa de excluir ${id}`
     );
 
     return;
@@ -352,14 +569,14 @@ function deleteOccurrence(id) {
   const occurrences = getOccurrences();
 
   const updated = occurrences.filter(
-    (item) => item.id !== id
+      (item) => item.id !== id
   );
 
   saveOccurrences(updated);
 
   writeLog(
-    "OCORRENCIA_EXCLUIDA",
-    `Ocorrência ${id} excluída`
+      "OCORRENCIA_EXCLUIDA",
+      `Ocorrência ${id} excluída`
   );
 
   render();
@@ -371,11 +588,13 @@ function changeStatus(id, status) {
   }
 
   if (!isAdmin()) {
-    alert("Apenas administradores podem alterar status.");
+    alert(
+        "Apenas administradores podem alterar status."
+    );
 
     writeLog(
-      "ALTERACAO_STATUS_NEGADA",
-      `Tentativa de alterar ${id}`
+        "ALTERACAO_STATUS_NEGADA",
+        `Tentativa de alterar ${id}`
     );
 
     return;
@@ -384,7 +603,7 @@ function changeStatus(id, status) {
   const occurrences = getOccurrences();
 
   const occurrence = occurrences.find(
-    (item) => item.id === id
+      (item) => item.id === id
   );
 
   if (!occurrence) {
@@ -392,13 +611,15 @@ function changeStatus(id, status) {
   }
 
   occurrence.status = status;
-  occurrence.updatedAt = new Date().toISOString();
+
+  occurrence.updatedAt =
+      new Date().toISOString();
 
   saveOccurrences(occurrences);
 
   writeLog(
-    "STATUS_ALTERADO",
-    `Ocorrência ${id} alterada para ${status}`
+      "STATUS_ALTERADO",
+      `Ocorrência ${id} alterada para ${status}`
   );
 
   render();
@@ -410,11 +631,13 @@ function exportEverything() {
   }
 
   if (!isAdmin()) {
-    alert("Apenas administradores podem exportar dados.");
+    alert(
+        "Apenas administradores podem exportar dados."
+    );
 
     writeLog(
-      "EXPORTACAO_NEGADA",
-      "Usuário sem permissão tentou exportar dados."
+        "EXPORTACAO_NEGADA",
+        "Usuário sem permissão tentou exportar dados."
     );
 
     return;
@@ -428,25 +651,29 @@ function exportEverything() {
   };
 
   const blob = new Blob(
-    [JSON.stringify(payload, null, 2)],
-    {
-      type: "application/json"
-    }
+      [JSON.stringify(payload, null, 2)],
+      {
+        type: "application/json"
+      }
   );
 
   const url = URL.createObjectURL(blob);
 
-  const anchor = document.createElement("a");
+  const anchor =
+      document.createElement("a");
 
   anchor.href = url;
-  anchor.download = "backup-ocorrencias.json";
+
+  anchor.download =
+      "backup-ocorrencias.json";
+
   anchor.click();
 
   URL.revokeObjectURL(url);
 
   writeLog(
-    "EXPORTACAO_TOTAL",
-    "Administrador exportou os dados."
+      "EXPORTACAO_TOTAL",
+      "Administrador exportou os dados."
   );
 }
 
@@ -454,20 +681,20 @@ function clearLogs() {
   alert("Logs não podem ser removidos.");
 
   writeLog(
-    "TENTATIVA_EXCLUSAO_LOG",
-    "Tentativa de exclusão de logs."
+      "TENTATIVA_EXCLUSAO_LOG",
+      "Tentativa de exclusão de logs."
   );
 }
 
 function resetData() {
   localStorage.setItem(
-    STORAGE_KEYS.occurrences,
-    JSON.stringify(INITIAL_OCCURRENCES)
+      STORAGE_KEYS.occurrences,
+      JSON.stringify(INITIAL_OCCURRENCES)
   );
 
   localStorage.setItem(
-    STORAGE_KEYS.audit,
-    JSON.stringify([])
+      STORAGE_KEYS.audit,
+      JSON.stringify([])
   );
 
   localStorage.removeItem(STORAGE_KEYS.session);
@@ -476,94 +703,101 @@ function resetData() {
 }
 
 function render() {
-  const term = searchInput.value.toLowerCase();
+  const term =
+      searchInput.value.toLowerCase();
 
-  const occurrences = getOccurrences();
+  const visibleOccurrences =
+      getVisibleOccurrences();
 
-  const session = getSession();
+  const filtered =
+      visibleOccurrences.filter((item) => {
+        const content =
+            JSON.stringify(item).toLowerCase();
 
-  let visibleOccurrences = occurrences;
-
-  if (!isAdmin()) {
-    visibleOccurrences = occurrences.filter(
-      (item) => item.createdBy === session.email
-    );
-  }
-
-  const filtered = visibleOccurrences.filter((item) => {
-    const content = JSON.stringify(item).toLowerCase();
-    return content.includes(term);
-  });
+        return content.includes(term);
+      });
 
   totalOccurrences.textContent =
-    visibleOccurrences.length;
+      visibleOccurrences.length;
 
   criticalOccurrences.textContent =
-    visibleOccurrences.filter(
-      (item) => item.priority === "Crítica"
-    ).length;
+      visibleOccurrences.filter(
+          (item) => item.priority === "Crítica"
+      ).length;
 
   lastUpdate.textContent =
-    `Atualizado em ${new Date().toLocaleTimeString("pt-BR")}`;
+      `Atualizado em ${new Date().toLocaleTimeString("pt-BR")}`;
 
-  occurrencesTable.innerHTML = filtered.map((item) => `
-    <tr>
-      <td>
-        <strong>${item.studentName}</strong><br />
-        <span class="muted-text">${item.studentId}</span>
-      </td>
+  occurrencesTable.innerHTML =
+      filtered.map((item) => `
+<tr>
+<td>
+  <strong>${sanitize(item.studentName)}</strong><br />
 
-      <td>${item.studentCpf}</td>
+  <span class="muted-text">
+    Matrícula: ${sanitize(item.studentId)}
+  </span>
+</td>
 
-      <td>
-        ${item.studentEmail}<br />
-        ${item.studentPhone}
-      </td>
+<td>
+  CPF: ${maskCpf(item.studentCpf)}
+</td>
 
-      <td>${item.category}</td>
+<td>
+  E-mail ocultado<br />
+  ${maskPhone(item.studentPhone)}
+</td>
 
-      <td>
-        <span class="priority ${item.priority}">
-          ${item.priority}
-        </span>
-      </td>
+<td>
+  ${sanitize(item.category)}
+</td>
 
-      <td>${item.status}</td>
+<td>
+  <span class="priority ${sanitize(item.priority)}">
+    ${sanitize(item.priority)}
+  </span>
+</td>
 
-      <td>
-        <strong>Descrição:</strong>
-        ${item.description}<br />
+<td>
+  ${sanitize(item.status)}
+</td>
 
-        <strong>Obs. interna:</strong>
-        ${item.internalNote}
-      </td>
+<td>
+  ${formatOccurrenceDetails(item)}
+</td>
 
-      <td>
-        ${
+<td>
+  ${
           isAdmin()
-            ? `
-            <div class="row-actions">
-              <button class="btn secondary"
-                onclick="changeStatus('${item.id}', 'Em análise')">
-                Em análise
-              </button>
+              ? `
+        <div class="row-actions">
+          <button
+            class="btn secondary"
+            onclick="changeStatus('${item.id}', 'Em análise')"
+          >
+            Em análise
+          </button>
 
-              <button class="btn secondary"
-                onclick="changeStatus('${item.id}', 'Resolvida')">
-                Resolver
-              </button>
+          <button
+            class="btn secondary"
+            onclick="changeStatus('${item.id}', 'Resolvida')"
+          >
+            Resolver
+          </button>
 
-              <button class="btn danger"
-                onclick="deleteOccurrence('${item.id}')">
-                Excluir
-              </button>
-            </div>
-          `
-            : `<span class="muted-text">Sem permissão</span>`
-        }
-      </td>
-    </tr>
-  `).join("");
+          <button
+            class="btn danger"
+            onclick="deleteOccurrence('${item.id}')"
+          >
+            Excluir
+          </button>
+        </div>
+      `
+              : `<span class="muted-text">Sem permissão</span>`
+      }
+</td>
+</tr>
+`).join("");
 
   if (!isAdmin()) {
     auditLog.innerHTML = `
@@ -583,59 +817,69 @@ function render() {
         Nenhum log registrado.
       </div>
     `;
-  } else {
-    auditLog.innerHTML = logs.map((log) => `
-      <div class="log-item">
-        <strong>${log.when}</strong><br />
 
-        usuário=${log.user || "—"}
-        | perfil=${log.role || "—"}
-        | ação=${log.action}<br />
-
-        detalhe=${log.detail}
-      </div>
-    `).join("");
+    return;
   }
+
+  auditLog.innerHTML = logs.map((log) => `
+<div class="log-item">
+  <strong>${sanitize(log.when)}</strong><br />
+
+  usuário=${sanitize(log.user || "?")}
+  | perfil=${sanitize(log.role || "?")}
+  | ação=${sanitize(log.action)}<br />
+
+  detalhe=${sanitize(log.detail)}
+</div>
+`).join("");
 }
 
-loginForm.addEventListener("submit", (event) => {
-  event.preventDefault();
+loginForm.addEventListener(
+    "submit",
+    (event) => {
+      event.preventDefault();
 
-  login(
-    document.querySelector("#email").value,
-    document.querySelector("#password").value
-  );
-});
-
-occurrenceForm.addEventListener(
-  "submit",
-  createOccurrence
+      login(
+          document.querySelector("#email").value,
+          document.querySelector("#password").value
+      );
+    }
 );
 
-logoutBtn.addEventListener("click", logout);
+occurrenceForm.addEventListener(
+    "submit",
+    createOccurrence
+);
+
+logoutBtn.addEventListener(
+    "click",
+    logout
+);
 
 exportBtn.addEventListener(
-  "click",
-  exportEverything
+    "click",
+    exportEverything
 );
 
 clearLogsBtn.addEventListener(
-  "click",
-  clearLogs
+    "click",
+    clearLogs
 );
 
 resetBtn.addEventListener(
-  "click",
-  resetData
+    "click",
+    resetData
 );
 
 searchInput.addEventListener(
-  "input",
-  render
+    "input",
+    render
 );
 
-window.deleteOccurrence = deleteOccurrence;
-window.changeStatus = changeStatus;
+window.deleteOccurrence =
+    deleteOccurrence;
+
+window.changeStatus =
+    changeStatus;
 
 boot();
-```
